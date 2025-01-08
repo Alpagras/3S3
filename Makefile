@@ -1,35 +1,35 @@
-# Nom du programme à construire
-TARGET = esme-gpio-toggle
+# Définir le répertoire d'installation par défaut
+INSTALL_DIR ?= ./install
 
-# Répertoire d'installation
-INSTALL_DIR ?= ./install/usr/bin
-
-# Variables de compilation
+# Cibles de compilation
 CFLAGS += $(shell pkg-config --cflags libgpiod)
 LDLIBS += $(shell pkg-config --libs libgpiod)
 
-# Fichiers source
-SRCS = esme-gpio-toggle.c
-OBJS = $(SRCS:.c=.o)
+# Nom du programme à construire
+TARGET = esme-gpio-toggle
 
-# Compiler et lier le programme
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDLIBS)
+# Compilation des sources
+$(TARGET): esme-gpio-toggle.o
+	$(CC) -o $(TARGET) esme-gpio-toggle.o $(LDLIBS)
 
-# Règle d'installation
+# Compilation des objets
+esme-gpio-toggle.o: esme-gpio-toggle.c
+	$(CC) -c esme-gpio-toggle.c -o esme-gpio-toggle.o $(CFLAGS)
+
+# Installer le programme et le script de démarrage
 install: $(TARGET)
-	@mkdir -p $(INSTALL_DIR)
-	@cp $(TARGET) $(INSTALL_DIR)
+	# Créer le répertoire d'installation si nécessaire
+	mkdir -p $(INSTALL_DIR)/usr/bin
+	# Copier le programme compilé dans /usr/bin
+	cp $(TARGET) $(INSTALL_DIR)/usr/bin/
+	# Copier le script d'init.d dans /etc/init.d et définir les permissions
+	mkdir -p $(INSTALL_DIR)/etc/init.d
+	cp esme-gpio26-toggle $(INSTALL_DIR)/etc/init.d/
+	chmod 0755 $(INSTALL_DIR)/etc/init.d/esme-gpio26-toggle
 
-# Règle de nettoyage
+# Nettoyer les fichiers générés
 clean:
-	@rm -f $(OBJS) $(TARGET)
+	rm -f $(TARGET) esme-gpio-toggle.o
 
-# Règle par défaut
-.PHONY: all
-all: $(TARGET)
-
-# Règle pour la création des objets
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
+# Cibles par défaut
+.PHONY: install clean

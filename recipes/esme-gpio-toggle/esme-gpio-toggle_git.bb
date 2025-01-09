@@ -37,7 +37,6 @@ do_compile () {
 }
 
 do_install () {
-	# Specify install commands here
-	:
+	oe_runmake install INSTALL_DIR=${D}
 }
 
